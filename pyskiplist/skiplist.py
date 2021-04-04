@@ -13,7 +13,7 @@ import sys
 import math
 import random
 
-__all__ = ['SkipList']
+__all__ = ['SkipList', 'SkiplistNode', 'getSkiplistNodeData', 'dumpNodes']
 
 
 # The following functions are debugging functions. They are available only when
