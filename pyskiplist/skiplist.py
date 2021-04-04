@@ -15,12 +15,10 @@ import random
 
 __all__ = ['SkipList', 'SkiplistNode', 'getSkiplistNodeData', 'dumpNodes']
 
-
 # The following functions are debugging functions. They are available only when
 # Python is not started with -O.
 
 from dataclasses import dataclass
-
 
 if __debug__:
 
@@ -29,7 +27,8 @@ if __debug__:
         level = max(1, len(node) - 3)
         skip = '(none)' if level == 1 else node[-1]
         return '<Node(level={}, key={}, value={}, skip={})>' \
-                    .format(level, node[0], node[1], skip)
+            .format(level, node[0], node[1], skip)
+
 
     def dump(sl, file=sys.stdout):
         """Dump a skiplist to standard output."""
@@ -47,16 +46,17 @@ if __debug__:
             avglen += len(node)
             avgsiz += nodesize(node)
         print('{0} (tail)'.format(fmtnode(node)), file=file)
-        print('Avg level: {:.2f}'.format(avglvl/len(sl)), file=file)
-        print('Avg node len: {:.2f}'.format(avglen/len(sl)), file=file)
-        print('Avg node memory: {:.2f}'.format(avgsiz/len(sl)), file=file)
+        print('Avg level: {:.2f}'.format(avglvl / len(sl)), file=file)
+        print('Avg node len: {:.2f}'.format(avglen / len(sl)), file=file)
+        print('Avg node memory: {:.2f}'.format(avgsiz / len(sl)), file=file)
         print(file=file)
+
 
     def check(sl):
         """Check the internal structure of a skiplist."""
         level = sl.maxlevel
         assert level > 0
-        while sl._head[1+level] is sl._tail and level > 1:
+        while sl._head[1 + level] is sl._tail and level > 1:
             level -= 1
         assert level == sl.level
         assert sl._head[0] is sl._head[1] is None
@@ -66,28 +66,29 @@ if __debug__:
         inbound = {id(sl._head): 0, id(sl._tail): len(sl)}
         while node is not sl._tail:
             assert isinstance(node, list)
-            level = min(sl.level, max(1, len(node)-3))
+            level = min(sl.level, max(1, len(node) - 3))
             assert 1 <= level <= sl.maxlevel
             for i in range(1, level):
-                fnode = node[2+i]
-                flevel = min(sl.level, max(1, len(fnode)-3))
-                if i == flevel-1:
+                fnode = node[2 + i]
+                flevel = min(sl.level, max(1, len(fnode) - 3))
+                if i == flevel - 1:
                     inbound[id(fnode)] = pos
             if level > 1:
                 assert id(node) in inbound
                 assert pos == inbound[id(node)] + node[-1]
             for i in range(level):
-                fnode = node[2+i]
+                fnode = node[2 + i]
                 assert isinstance(fnode, list)
                 level = max(1, len(node) - 3)
-                assert level >= i+1
+                assert level >= i + 1
             node = node[2]
             pos += 1
         assert sl._tail[0] is None
         assert sl._tail[1] is None
         for i in range(sl.maxlevel):
-            assert sl._tail[2+i] is None
+            assert sl._tail[2 + i] is None
         assert len(sl) == inbound[id(sl._tail)] + node[-1]
+
 
     def nodesize(node):
         """Return the size of a skiplist node."""
@@ -98,6 +99,7 @@ if __debug__:
         if len(node) > 3:
             size += sys.getsizeof(node[-1])
         return size
+
 
     def getsize(sl):
         """Return total size of a skiplist."""
@@ -129,7 +131,7 @@ class SkipList(object):
 
     UNSET = object()
 
-    p = int((1<<31) / math.e)
+    p = int((1 << 31) / math.e)
     maxlevel = 20
 
     # Kudos to http://pythonsweetness.tumblr.com/post/45227295342 for some
@@ -151,7 +153,7 @@ class SkipList(object):
         self._head = self._new_node(self.maxlevel, None, None)
         self._tail = self._new_node(self.maxlevel, None, None)
         for i in range(self.maxlevel):
-            self._head[2+i] = self._tail
+            self._head[2 + i] = self._tail
         self._path = [None] * self.maxlevel
         self._distance = [None] * self.maxlevel
 
@@ -162,12 +164,12 @@ class SkipList(object):
         if level == 1:
             return [key, value, None]
         else:
-            return [key, value] + [None]*level + [0]
+            return [key, value] + [None] * level + [0]
 
     def _random_level(self):
         # Exponential distribution as per Pugh's paper.
         l = 1
-        maxlevel = min(self.maxlevel, self.level+1)
+        maxlevel = min(self.maxlevel, self.level + 1)
         while l < maxlevel and self._rnd.getrandbits(31) < self.p:
             l += 1
         return l
@@ -178,8 +180,8 @@ class SkipList(object):
         if level > self.level:
             self._tail[-1] = len(self)
             self._level = level
-            self._path[level-1] = self._head
-            self._distance[level-1] = 0
+            self._path[level - 1] = self._head
+            self._distance[level - 1] = 0
         return self._new_node(level, key, value)
 
     def _find_lt(self, key):
@@ -187,9 +189,9 @@ class SkipList(object):
         node = self._head
         distance = 0
         for i in reversed(range(self.level)):
-            nnode = node[2+i]
+            nnode = node[2 + i]
             while nnode is not self._tail and nnode[0] < key:
-                nnode, node = nnode[2+i], nnode
+                nnode, node = nnode[2 + i], nnode
                 distance += 1 if i == 0 else node[-1]
             self._path[i] = node
             self._distance[i] = distance
@@ -199,9 +201,9 @@ class SkipList(object):
         node = self._head
         distance = 0
         for i in reversed(range(self.level)):
-            nnode = node[2+i]
+            nnode = node[2 + i]
             while nnode is not self._tail and nnode[0] <= key:
-                nnode, node = nnode[2+i], nnode
+                nnode, node = nnode[2 + i], nnode
                 distance += 1 if i == 0 else node[-1]
             self._path[i] = node
             self._distance[i] = distance
@@ -211,10 +213,10 @@ class SkipList(object):
         node = self._head
         distance = 0
         for i in reversed(range(self.level)):
-            nnode = node[2+i]
+            nnode = node[2 + i]
             ndistance = distance + (1 if i == 0 else nnode[-1])
             while nnode is not self._tail and ndistance <= pos:
-                nnode, node, distance = nnode[2+i], nnode, ndistance
+                nnode, node, distance = nnode[2 + i], nnode, ndistance
                 ndistance += 1 if i == 0 else nnode[-1]
             self._path[i] = node
             self._distance[i] = distance
@@ -225,38 +227,40 @@ class SkipList(object):
         # Update pointers
         level = max(1, len(node) - 3)
         for i in range(level):
-            node[2+i] = path[i][2+i]
-            path[i][2+i] = node
+            node[2 + i] = path[i][2 + i]
+            path[i][2 + i] = node
         if level > 1:
-            node[-1] = 1 + distance[0] - distance[level-1]
+            node[-1] = 1 + distance[0] - distance[level - 1]
         # Update skip counts
         node = node[2]
-        i = 2; j = min(len(node) - 3, self.level)
+        i = 2;
+        j = min(len(node) - 3, self.level)
         while i <= self.level:
             while j < i:
                 node = node[i]
                 j = min(len(node) - 3, self.level)
-            node[-1] -= distance[0] - distance[j-1] if j <= level else -1
-            i = j+1
+            node[-1] -= distance[0] - distance[j - 1] if j <= level else -1
+            i = j + 1
 
     def _remove(self, node):
         # Remove a node. The _path and _distance must be set.
         path, distance = self._path, self._distance
         level = max(1, len(node) - 3)
         for i in range(level):
-            path[i][2+i] = node[2+i]
+            path[i][2 + i] = node[2 + i]
         # Update skip counts
         value = node[1]
         node = node[2]
-        i = 2; j = min(len(node) - 3, self.level)
+        i = 2;
+        j = min(len(node) - 3, self.level)
         while i <= self.level:
             while j < i:
                 node = node[i]
                 j = min(len(node) - 3, self.level)
-            node[-1] += distance[0] - distance[j-1] if j <= level else -1
-            i = j+1
+            node[-1] += distance[0] - distance[j - 1] if j <= level else -1
+            i = j + 1
         # Reduce level if last node on current level was removed
-        while self.level > 1 and self._head[1+self.level] is self._tail:
+        while self.level > 1 and self._head[1 + self.level] is self._tail:
             self._level -= 1
             self._tail[-1] += self._tail[-1] - len(self)
         return value
@@ -295,7 +299,7 @@ class SkipList(object):
     def clear(self):
         """Remove all key-value pairs."""
         for i in range(self.maxlevel):
-            self._head[2+i] = self._tail
+            self._head[2 + i] = self._tail
             self._tail[-1] = 0
         self._level = 1
 
@@ -424,7 +428,7 @@ class SkipList(object):
         if pos == -1:
             return count
         count += 1
-        for i in range(pos+1, len(self)):
+        for i in range(pos + 1, len(self)):
             if self[i][0] != key:
                 break
             count += 1
@@ -458,11 +462,15 @@ class SkipList(object):
             elif stop < 0:
                 stop += size
             self._find_pos(start)
+
             def genpairs():
-                pos = start; node = self._path[0][2]
+                pos = start;
+                node = self._path[0][2]
                 while node is not self._tail and pos < stop:
                     yield (node[0], node[1])
-                    node = node[2]; pos += 1
+                    node = node[2];
+                    pos += 1
+
             return genpairs()
         else:
             raise TypeError('expecting int or slice, got {0.__name__!r}'.format(type(pos)))
@@ -495,6 +503,7 @@ class SkipList(object):
 
     # Added for CollateX experiment
 
+
 @dataclass
 class SkiplistNode:
     """Declare SkipListNode class for export in dumpNodes()"""
@@ -509,7 +518,7 @@ def getSkiplistNodeData(node):
     level = max(1, len(node) - 3)
     key = node[0]
     value = node[1]
-    return (level, key, value)
+    return level, key, value
 
 
 def dumpNodes(sl):
@@ -526,5 +535,3 @@ def dumpNodes(sl):
     nodeValues = getSkiplistNodeData(node)
     SkiplistNodes.append(SkiplistNode(level=nodeValues[0], key=nodeValues[1], value=nodeValues[2], name="tail"))
     return SkiplistNodes
-
-
