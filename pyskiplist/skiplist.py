@@ -494,37 +494,37 @@ class SkipList(object):
         node[1] = value
 
     # Added for CollateX experiment
-    
-    @dataclass
-    class SkiplistNode:
-        """Declare SkipListNode class for export in dumpNodes()"""
-        level: int
-        key: str
-        value: str
-        name: str = None
+
+@dataclass
+class SkiplistNode:
+    """Declare SkipListNode class for export in dumpNodes()"""
+    level: int
+    key: str
+    value: str
+    name: str = None
 
 
-    def getSkiplistNodeData(node):
-        """Return Skipnode values for formatting in dumpNodes()"""
-        level = max(1, len(node) - 3)
-        key = node[0]
-        value = node[1]
-        return (level, key, value)
+def getSkiplistNodeData(node):
+    """Return Skipnode values for formatting in dumpNodes()"""
+    level = max(1, len(node) - 3)
+    key = node[0]
+    value = node[1]
+    return (level, key, value)
 
 
-    def dumpNodes(sl):
-        """Export Python list of Skipnode objects"""
-        SkiplistNodes = []
-        node = sl._head
+def dumpNodes(sl):
+    """Export Python list of Skipnode objects"""
+    SkiplistNodes = []
+    node = sl._head
+    nodeValues = getSkiplistNodeData(node)
+    SkiplistNodes.append(SkiplistNode(level=nodeValues[0], key=nodeValues[1], value=nodeValues[2], name="head"))
+    node = node[2]
+    while node is not sl._tail:
         nodeValues = getSkiplistNodeData(node)
-        SkiplistNodes.append(SkiplistNode(level=nodeValues[0], key=nodeValues[1], value=nodeValues[2], name="head"))
+        SkiplistNodes.append(SkiplistNode(level=nodeValues[0], key=nodeValues[1], value=nodeValues[2]))
         node = node[2]
-        while node is not sl._tail:
-            nodeValues = getSkiplistNodeData(node)
-            SkiplistNodes.append(SkiplistNode(level=nodeValues[0], key=nodeValues[1], value=nodeValues[2]))
-            node = node[2]
-        nodeValues = getSkiplistNodeData(node)
-        SkiplistNodes.append(SkiplistNode(level=nodeValues[0], key=nodeValues[1], value=nodeValues[2], name="tail"))
-        return SkiplistNodes
+    nodeValues = getSkiplistNodeData(node)
+    SkiplistNodes.append(SkiplistNode(level=nodeValues[0], key=nodeValues[1], value=nodeValues[2], name="tail"))
+    return SkiplistNodes
 
 
